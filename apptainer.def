@@ -25,7 +25,7 @@ From: debian:bookworm-slim
 
 %labels
     Author       your-name
-    Application  cicd-demo
+    Application  go-cicd-demo
     Description  Minimal hello-world demo: Debian + curl + Go binary (Gonum)
 
 %files from build

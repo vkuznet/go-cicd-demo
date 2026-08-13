@@ -1,4 +1,4 @@
-module cicd-demo
+module go-cicd-demo
 
 go 1.26.5
 
