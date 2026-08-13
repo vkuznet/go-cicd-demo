@@ -2,7 +2,7 @@
 # Stage 1: Build stage
 # -----------------------------------------------------------------------------
 Bootstrap: docker
-From: golang:1.22-bookworm
+From: golang
 Stage: build
 
 %files
