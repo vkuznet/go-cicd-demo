@@ -1,0 +1,52 @@
+# -----------------------------------------------------------------------------
+# Stage 1: Build stage
+# -----------------------------------------------------------------------------
+Bootstrap: docker
+From: golang:1.22-bookworm
+Stage: build
+
+%files
+    go.mod /src/go.mod
+    go.sum /src/go.sum
+    main.go /src/main.go
+
+%post
+    cd /src
+    # Download dependencies
+    go mod download
+    # Build a statically linked binary (CGO_ENABLED=0)
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /app/hello main.go
+
+# -----------------------------------------------------------------------------
+# Stage 2: Final runtime stage
+# -----------------------------------------------------------------------------
+Bootstrap: docker
+From: debian:bookworm-slim
+
+%labels
+    Author       your-name
+    Application  cicd-demo
+    Description  Minimal hello-world demo: Debian + curl + Go binary (Gonum)
+
+%files from build
+    /app/hello /app/hello
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
+    apt-get install -y --no-install-recommends \
+        curl \
+        ca-certificates
+    rm -rf /var/lib/apt/lists/*
+
+%environment
+    export PATH="/app:${PATH}"
+
+%runscript
+    exec /app/hello "$@"
+
+%test
+    # Verify the compiled Go executable runs correctly
+    /app/hello CI-Test
+    # Verify system tools like curl work in the image
+    curl --version | head -n1
